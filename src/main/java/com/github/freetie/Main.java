@@ -1,0 +1,9 @@
+package com.github.freetie;
+
+import java.io.IOException;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        new Crawler().run();
+    }
+}

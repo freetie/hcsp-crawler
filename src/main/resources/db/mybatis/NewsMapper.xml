@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.freetie.NewsMapper">
+    <insert id="insertLink" parameterType="String">
+        insert into `link` (url)
+        values (#{url})
+    </insert>
+    <delete id="deleteLink" parameterType="String">
+        delete from `link` where url = #{url}
+    </delete>
+    <select id="takeLink" resultType="String">
+        select url from link limit 1
+    </select>
+
+    <insert id="insertNews" parameterType="com.github.freetie.News">
+        insert into `news` (url, title, content)
+        values (#{url}, #{title}, #{content})
+    </insert>
+    <select id="countNewsByUrl" parameterType="String" resultType="int">
+        select count(*) from `news` where url = #{url}
+    </select>
+</mapper>
