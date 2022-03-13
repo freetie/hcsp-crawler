@@ -9,32 +9,37 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Crawler {
-    MyBatisCrawlerDao dao = new MyBatisCrawlerDao();
+public class Crawler extends Thread {
+    MyBatisCrawlerDao dao;
 
-    public Crawler() throws IOException {
+    public Crawler(MyBatisCrawlerDao dao) {
+        this.dao = dao;
     }
 
-    public void run() throws IOException {
+    @Override
+    public void run() {
         String link;
         while ((link = dao.takeLink()) != null) {
             crawlPage(link);
         }
     }
 
-
-    public void crawlPage(String link) throws IOException {
+    public void crawlPage(String link) {
         System.out.println(link);
-        Document doc = Jsoup.connect(link).get();
-        crawlPageLinks(doc);
-        Element header = doc.selectFirst("h1.main-title");
-        Elements paragraphs = doc.select(".article p");
-        if (header != null && paragraphs.size() > 0) {
-            String content = paragraphs.stream().map(Element::text).collect(Collectors.joining("\n"));
-            News news = new News(link, header.text(), content);
-            dao.insertNews(news);
+        try {
+            Document doc = Jsoup.connect(link).get();
+            crawlPageLinks(doc);
+            Element header = doc.selectFirst("h1.main-title");
+            Elements paragraphs = doc.select(".article p");
+            if (header != null && paragraphs.size() > 0) {
+                String content = paragraphs.stream().map(Element::text).collect(Collectors.joining("\n"));
+                News news = new News(link, header.text(), content);
+                dao.insertNews(news);
+            }
+        } catch (IOException e) {
+            dao.insertLink(link);
+            throw new RuntimeException(e);
         }
-        dao.deleteLink(link);
     }
 
     public void crawlPageLinks(Document doc) {

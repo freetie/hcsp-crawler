@@ -7,7 +7,6 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 public class MyBatisCrawlerDao {
     SqlSessionFactory sqlSessionFactory;
@@ -24,15 +23,11 @@ public class MyBatisCrawlerDao {
         }
     }
 
-    public void deleteLink(String url) {
+    public synchronized String takeLink() {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
-            session.insert("com.github.freetie.NewsMapper.deleteLink", url);
-        }
-    }
-
-    public String takeLink() {
-        try (SqlSession session = sqlSessionFactory.openSession(true)) {
-            return session.selectOne("com.github.freetie.NewsMapper.takeLink");
+            String url = session.selectOne("com.github.freetie.NewsMapper.takeLink");
+            session.delete("com.github.freetie.NewsMapper.deleteLink", url);
+            return url;
         }
     }
 
